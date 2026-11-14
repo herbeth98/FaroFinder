@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="440" viewBox="0 0 1200 440"><style>
+    text { font-family: 'Segoe UI Variable Display','Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif; }
+    .a { transform-box: fill-box; transform-origin: center; }
+    @keyframes deriva1 { 50% { transform: translate(60px, -30px) scale(1.12); } }
+    @keyframes deriva2 { 50% { transform: translate(-70px, 40px) scale(.92); } }
+    @keyframes deriva3 { 50% { transform: translate(40px, 50px) scale(1.08); } }
+    .b1 { animation: deriva1 18s ease-in-out infinite; }
+    .b2 { animation: deriva2 22s ease-in-out infinite; }
+    .b3 { animation: deriva3 26s ease-in-out infinite; }
+    
+    @keyframes anel { 0% { transform: scale(.7); opacity: .9; } 100% { transform: scale(1.6); opacity: 0; } }
+    .anel { transform-box: fill-box; transform-origin: center; animation: anel 3.6s ease-out infinite; }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; }  }</style>
+    <defs>
+      <linearGradient id="f1200x440" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#070a14"/><stop offset="1" stop-color="#0c1630"/></linearGradient>
+      <filter id="nevf1200x440" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="70"/></filter>
+      <clipPath id="cf1200x440"><rect width="1200" height="440" rx="28"/></clipPath>
+    </defs>
+    <g clip-path="url(#cf1200x440)">
+      <rect width="1200" height="440" fill="url(#f1200x440)"/>
+      <g filter="url(#nevf1200x440)" opacity="0.3">
+        <circle class="a b1" cx="180.0" cy="88.0" r="184.79999999999998" fill="#30d158"/>
+        <circle class="a b2" cx="1020.0" cy="110.0" r="158.4" fill="#0a84ff"/>
+        <circle class="a b3" cx="720.0" cy="418.0" r="176.0" fill="#64d2ff" opacity=".7"/>
+      </g>
+      <rect width="1200" height="440" rx="28" fill="none" stroke="#ffffff" stroke-opacity=".08" stroke-width="2"/>
+    </g><circle class="anel" style="animation-delay: 0.0s" cx="600.0" cy="130" r="56" fill="none" stroke="#30d158" stroke-width="2"/><circle class="anel" style="animation-delay: 1.2s" cx="600.0" cy="130" r="56" fill="none" stroke="#30d158" stroke-width="2"/><circle class="anel" style="animation-delay: 2.4s" cx="600.0" cy="130" r="56" fill="none" stroke="#30d158" stroke-width="2"/><circle cx="600.0" cy="130" r="56" fill="#30d158" fill-opacity=".14" stroke="#30d158" stroke-width="2"/><rect x="578.0" y="124" width="44" height="36" rx="8" fill="#30d158"/><path d="M587.0 124 v-10 a13 13 0 0 1 26 0 v10" fill="none" stroke="#30d158" stroke-width="6"/><text x="600.0" y="268" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="-1.2" fill="#f5f5f7">Nada sai do seu computador.</text><text x="600.0" y="316" text-anchor="middle" font-size="22" fill="#a1a1aa">A inteligência artificial roda na sua máquina. Sem conta, sem assinatura</text><text x="600.0" y="348" text-anchor="middle" font-size="22" fill="#a1a1aa">e sem mandar nenhuma foto para a nuvem.</text></svg>
