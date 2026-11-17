@@ -9,6 +9,7 @@ from typing import Callable
 
 from .config import (IMAGE_EXT, MIN_IMAGE_BYTES, RAW_EXT, VIDEO_EXT, is_code_project, is_sequence_frame,
                      skip_dir_name)
+from . import religar
 from .db import connect, refresh_fts
 from .media import date_from_name, image_meta_and_thumb, raw_meta_and_thumb, thumb_path, video_meta_and_thumbs
 from .volumes import register
@@ -87,6 +88,7 @@ def scan(root: str | Path, progress: Progress | None = None, workers: int = 6, s
     stats = {"found": 0, "new": 0, "changed": 0, "unchanged": 0, "errors": 0, "missing": 0, "stopped": False}
     stopped = (lambda: stop is not None and stop.is_set())
     seen: set[int] = set()
+    fresh: set[int] = set()  # entraram no catálogo agora (podem ser arquivos que só mudaram de lugar)
     todo: list[tuple[int, Path, str]] = []
 
     progress({"phase": "listando arquivos", "root": str(root), **stats})
@@ -103,7 +105,7 @@ def scan(root: str | Path, progress: Progress | None = None, workers: int = 6, s
                 continue
         path, kind, ext, size, mtime = item
         stats["found"] += 1
-        fid, needs_work = _register(conn, vid, drive, path, kind, ext, size, mtime, stats)
+        fid, needs_work = _register(conn, vid, drive, path, kind, ext, size, mtime, stats, fresh)
         seen.add(fid)
         if needs_work:
             todo.append((fid, path, kind))
@@ -122,8 +124,18 @@ def scan(root: str | Path, progress: Progress | None = None, workers: int = 6, s
     ]
     for fid in gone:
         conn.execute("UPDATE files SET missing = 1 WHERE id = ?", (fid,))
-    stats["missing"] = len(gone)
     conn.commit()
+
+    # Arquivos que só mudaram de lugar: o registro antigo vai para o caminho novo, com tudo o que já tinha
+    todo, moved_in = religar.novos(conn, todo, fresh)
+    moved_out = religar.sumidos(conn, gone)
+    stats["moved"] = moved_in + moved_out
+    stats["new"] -= moved_in
+    stats["missing"] = len(gone) - stats["moved"]
+    conn.commit()
+    if moved_out:
+        from .ai import invalidate_index
+        invalidate_index()  # registros novos com vetores saíram do catálogo
 
     # Metadados + miniaturas em paralelo
     total = len(todo)
@@ -135,8 +147,9 @@ def scan(root: str | Path, progress: Progress | None = None, workers: int = 6, s
 
 
 def _register(conn, vid: int, drive: str, path: Path, kind: str, ext: str, size: int, mtime: float,
-              stats: dict) -> tuple[int, bool]:
-    """Põe (ou atualiza) um arquivo no catálogo. Devolve (id, precisa de miniatura/metadados?)."""
+              stats: dict, fresh: set[int] | None = None) -> tuple[int, bool]:
+    """Põe (ou atualiza) um arquivo no catálogo. Devolve (id, precisa de miniatura/metadados?).
+    Os que entram agora no catálogo vão para `fresh`."""
     rel = str(path)[len(drive):]
     row = conn.execute("SELECT id, size, mtime, has_thumb, missing FROM files WHERE volume_id = ? AND relpath = ?",
                        (vid, rel)).fetchone()
@@ -152,10 +165,13 @@ def _register(conn, vid: int, drive: str, path: Path, kind: str, ext: str, size:
         stats["changed"] += 1
         return row["id"], True
     # OR IGNORE: a vigilância de pastas e uma indexação podem chegar no mesmo arquivo ao mesmo tempo
-    conn.execute("INSERT OR IGNORE INTO files(volume_id, relpath, name, ext, kind, size, mtime) VALUES (?,?,?,?,?,?,?)",
-                 (vid, rel, path.name, ext, kind, size, mtime))
+    cur = conn.execute("INSERT OR IGNORE INTO files(volume_id, relpath, name, ext, kind, size, mtime) VALUES (?,?,?,?,?,?,?)",
+                       (vid, rel, path.name, ext, kind, size, mtime))
     stats["new"] += 1
-    return conn.execute("SELECT id FROM files WHERE volume_id = ? AND relpath = ?", (vid, rel)).fetchone()[0], True
+    fid = conn.execute("SELECT id FROM files WHERE volume_id = ? AND relpath = ?", (vid, rel)).fetchone()[0]
+    if fresh is not None and cur.rowcount == 1:
+        fresh.add(fid)
+    return fid, True
 
 
 @lru_cache(maxsize=20000)
@@ -182,7 +198,8 @@ def scan_paths(paths, progress: Progress | None = None, stop=None) -> dict:
     progress = progress or (lambda d: None)
     stopped = (lambda: stop is not None and stop.is_set())
     conn = connect()
-    stats = {"found": 0, "new": 0, "changed": 0, "unchanged": 0, "errors": 0, "missing": 0, "stopped": False}
+    stats = {"found": 0, "new": 0, "changed": 0, "unchanged": 0, "errors": 0, "missing": 0, "moved": 0,
+             "stopped": False}
     new_ids: list[int] = []
     by_drive: dict[str, list[Path]] = {}
     for p in {Path(p) for p in paths}:
@@ -190,6 +207,7 @@ def scan_paths(paths, progress: Progress | None = None, stop=None) -> dict:
     for drive, plist in by_drive.items():
         vid, vinfo = register(plist[0])
         todo = []
+        fresh: set[int] = set()
         last = time.time()
         for p in plist:
             if stopped():
@@ -205,9 +223,13 @@ def scan_paths(paths, progress: Progress | None = None, stop=None) -> dict:
             if not c or (c[0] == "image" and st.st_size < MIN_IMAGE_BYTES):
                 continue
             stats["found"] += 1
-            fid, needs_work = _register(conn, vid, p.drive, p, c[0], c[1], st.st_size, st.st_mtime, stats)
+            fid, needs_work = _register(conn, vid, p.drive, p, c[0], c[1], st.st_size, st.st_mtime, stats, fresh)
             if needs_work:
                 todo.append((fid, p, c[0]))
+        # veio de uma pasta que não é vigiada ou de outro disco: aproveita o registro antigo, se houver
+        todo, moved = religar.novos(conn, todo, fresh)
+        stats["moved"] += moved
+        stats["new"] -= moved
         conn.commit()
         _thumbs(conn, vinfo["serial"], todo, stats, stopped, progress, workers=4)
         new_ids += [fid for fid, _, _ in todo]
