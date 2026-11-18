@@ -13,9 +13,28 @@ _started = False
 _lock = threading.Lock()
 
 
+# Texto que a tela mostra para cada tipo de tarefa. Tipo novo entra aqui; a tela não tem cópia desta tabela.
+KIND_LABEL = {
+    "rostos": "Rostos", "ocr": "Lendo texto nas fotos", "fala": "Transcrevendo vídeos",
+    "duplicados": "Procurando duplicados", "xmp": "Gravando palavras-chave", "arquivos": "Arquivos novos",
+    "etapas": "Processando", "pendentes": "Processando", "atualizar": "Atualizando os discos",
+    "leitura": "Teste de leitura", "qualidade": "Fotos ruins", "descricao": "Descrevendo",
+    "lightroom": "Lightroom", "ia": "IA", "som": "Sons nos vídeos",
+}
+
+
+def label(job: dict) -> str:
+    if job.get("kind") == "scan":
+        return f"Indexando {job.get('path') or ''}"
+    return KIND_LABEL.get(job.get("kind"), "IA")
+
+
 def _light(job: dict | None) -> dict | None:
     """Sem a lista de arquivos (pode ter milhares) — a tela consulta isto a cada segundo."""
-    big = [k for k in ("ids", "paths") if job and k in job]
+    if not job:
+        return job
+    job = {**job, "label": label(job)}
+    big = [k for k in ("ids", "paths") if k in job]
     if not big:
         return job
     return {k: v for k, v in job.items() if k not in big} | {"count": len(job[big[0]])}

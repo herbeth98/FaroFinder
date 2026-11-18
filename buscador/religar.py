@@ -55,9 +55,9 @@ def _same_content(old, path: Path | None) -> bool:
 
 def _take_place(conn, old, new) -> None:
     """O registro antigo (com todo o trabalho feito) passa para o caminho do novo, que sai do catálogo."""
-    from .dupes import _merge_metadata
+    from .dupes import merge_metadata
     from .faces import face_crop_path
-    _merge_metadata(conn, new["id"], old["id"])  # palavras-chave suas, favorito e coleções do novo
+    merge_metadata(conn, new["id"], old["id"])  # palavras-chave suas, favorito e coleções do novo
     for (face_id,) in conn.execute("SELECT id FROM faces WHERE file_id = ?", (new["id"],)).fetchall():
         face_crop_path(face_id).unlink(missing_ok=True)
     for frame in range(3):

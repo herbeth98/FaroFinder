@@ -146,10 +146,10 @@ def embed(crops: list[np.ndarray]) -> np.ndarray:
 
 # ---------------------------------------------------------------- imagem de origem
 
-def _source_images(row) -> tuple[list[np.ndarray], bool]:
+def source_images(row) -> tuple[list[np.ndarray], bool]:
     """Imagem usada para achar rostos: o original (reduzido) se o disco estiver conectado, senão a miniatura.
 
-    Devolve (imagens, veio_do_original)."""
+    Devolve (imagens, veio_do_original). Também usada por ocr.py."""
     from .media import thumb_paths
     from .volumes import connected
 
@@ -221,7 +221,7 @@ def process_pending(progress: Callable[[dict], None] | None = None, stop: thread
         for fid in old:
             face_crop_path(fid).unlink(missing_ok=True)
         try:
-            images, original = _source_images(row)
+            images, original = source_images(row)
         except Exception:
             images, original = [], False
         min_px = MIN_FACE_PX if original else MIN_FACE_PX * 0.6  # miniatura é menor: aceita rosto menor

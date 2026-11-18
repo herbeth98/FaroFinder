@@ -653,10 +653,7 @@ async function pollJobs() {
   if (c) {
     const p = c.progress || {};
     const pct = p.total ? Math.round((p.done / p.total) * 100) : 0;
-    const what = c.kind === "scan" ? `Indexando ${esc(c.path || "")}` : c.kind === "rostos" ? "Rostos"
-      : c.kind === "ocr" ? "Lendo texto nas fotos" : c.kind === "fala" ? "Transcrevendo vídeos"
-      : c.kind === "duplicados" ? "Procurando duplicados" : c.kind === "xmp" ? "Gravando palavras-chave"
-      : c.kind === "arquivos" ? "Arquivos novos" : c.kind === "etapas" || c.kind === "pendentes" ? "Processando" : c.kind === "atualizar" ? "Atualizando os discos" : c.kind === "leitura" ? "Teste de leitura" : c.kind === "qualidade" ? "Fotos ruins" : c.kind === "descricao" ? "Descrevendo" : c.kind === "lightroom" ? "Lightroom" : "IA";
+    const what = esc(c.label || "Processando");   // o texto vem pronto de jobs.KIND_LABEL
     const detail = p.total ? `${p.done.toLocaleString("pt-BR")} de ${p.total.toLocaleString("pt-BR")}` : (p.found ? `${p.found.toLocaleString("pt-BR")} encontrados` : "");
     const rate = (p.per_hour ? ` · ${p.per_hour.toLocaleString("pt-BR")}/hora` : "")
       + (p.eta_min ? ` · faltam ~${p.eta_min >= 60 ? Math.round(p.eta_min / 60) + " h" : p.eta_min + " min"}` : "");
@@ -1596,12 +1593,10 @@ $("#bkNow").addEventListener("click", async () => {
 });
 
 // ------------------------------------------------------------ baixar
-const RAW_EXTS = [".arw", ".cr2", ".cr3", ".nef", ".dng", ".raf", ".orf", ".rw2", ".pef", ".srw", ".nrw"];
-
 function renderDownload() {
   const f = current;
   const down = $("#vdown"), jpg = $("#vdownJpg");
-  const raw = RAW_EXTS.includes(f.ext);
+  const raw = !!f.is_raw;   // vem do servidor (config.RAW_EXT)
   down.href = `/api/media/${f.id}?baixar=true`;
   down.textContent = `Baixar${raw ? " RAW" : ""} (${fmtBytes(f.size || 0)})`;
   down.classList.toggle("off", !f.online);

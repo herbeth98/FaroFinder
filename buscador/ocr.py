@@ -29,7 +29,7 @@ def read_text(img) -> str:
 
 
 def process_pending(progress: Callable[[dict], None] | None = None, stop=None, only_ids=None) -> dict:
-    from .faces import _source_images
+    from .faces import source_images
 
     progress = progress or (lambda d: None)
     conn = connect()
@@ -48,7 +48,7 @@ def process_pending(progress: Callable[[dict], None] | None = None, stop=None, o
     _load()
     t0, with_text, last = time.time(), 0, 0.0
     # o disco abre e reduz as próximas fotos enquanto a placa lê o texto da atual
-    for n, (row, src) in enumerate(ahead(rows, _source_images, workers=4, depth=8, stop=stop), 1):
+    for n, (row, src) in enumerate(ahead(rows, source_images, workers=4, depth=8, stop=stop), 1):
         if stop is not None and stop.is_set():
             break
         try:

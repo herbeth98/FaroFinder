@@ -216,7 +216,7 @@ def move_to_trash(remove_ids: list[int]) -> dict:
             os.replace(src, dest)  # mesmo disco: só muda o arquivo de pasta
         except OSError as exc:
             refused.append({"id": fid, "motivo": f"não consegui mover: {exc}"}); continue
-        _merge_metadata(conn, fid, safe["id"])
+        merge_metadata(conn, fid, safe["id"])
         conn.execute("UPDATE files SET trashed = 1, missing = 1 WHERE id = ?", (fid,))
         conn.execute("INSERT INTO trash(file_id, kept_file_id, trash_relpath, size, moved_at) VALUES (?, ?, ?, ?, ?)",
                      (fid, safe["id"], str(dest)[len(drive):], r["size"], datetime.now().isoformat(timespec="seconds")))
@@ -256,8 +256,8 @@ def trash_files(ids: list[int]) -> dict:
     return {"moved": len(moved), "bytes": sum(moved), "failed": len(failed)}
 
 
-def _merge_metadata(conn, from_id: int, to_id: int) -> None:
-    """Palavras-chave suas, favorito e coleções da cópia removida passam para a cópia mantida."""
+def merge_metadata(conn, from_id: int, to_id: int) -> None:
+    """Palavras-chave suas, favorito e coleções da cópia removida passam para a cópia mantida. Também usada por religar.py."""
     conn.execute(
         """INSERT OR IGNORE INTO file_tags(file_id, tag_id, source, score)
            SELECT ?, tag_id, source, score FROM file_tags WHERE file_id = ? AND source = 'user'""", (to_id, from_id))

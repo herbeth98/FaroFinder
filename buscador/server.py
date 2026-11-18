@@ -370,6 +370,7 @@ def api_file(fid: int):
     from .som import events_of
     d["sounds"] = events_of(fid) if row["kind"] == "video" else []
     d["frames"] = len(VIDEO_FRAMES) if row["kind"] == "video" else 1
+    d["is_raw"] = (d.get("ext") or "").lower() in RAW_EXT   # a lista existe só em config.RAW_EXT
     return d
 
 
