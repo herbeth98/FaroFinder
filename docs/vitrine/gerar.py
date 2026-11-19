@@ -5,8 +5,8 @@ from pathlib import Path
 
 AQUI = Path(__file__).parent
 FONTE = "'Segoe UI Variable Display','Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif"
-AZUL, INDIGO, CIANO = "#0a84ff", "#5e5ce6", "#64d2ff"
-TEXTO, CINZA = "#f5f5f7", "#a1a1aa"
+AZUL, INDIGO, CIANO = "#2d7efc", "#1a62d6", "#8db8ff"   # azuis da marca FaroFinder
+TEXTO, CINZA = "#f5f5f4", "#a3a6ab"
 
 
 def esc(t):
@@ -36,7 +36,7 @@ def fundo(w, h, cores=(AZUL, INDIGO, CIANO), forca=.45, raio=28):
     c1, c2, c3 = cores
     return f"""
     <defs>
-      <linearGradient id="{id_}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#070a14"/><stop offset="1" stop-color="#0c1630"/></linearGradient>
+      <linearGradient id="{id_}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#16171a"/><stop offset="1" stop-color="#1f2124"/></linearGradient>
       <filter id="nev{id_}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="70"/></filter>
       <clipPath id="c{id_}"><rect width="{w}" height="{h}" rx="{raio}"/></clipPath>
     </defs>
@@ -152,14 +152,14 @@ def abertura():
     """
     parado = ".outra { display: none; }"
     c = [fundo(W, H, forca=.5)]
-    c.append(f'<text x="{W/2}" y="92" text-anchor="middle" font-size="18" font-weight="700" letter-spacing="2.4" fill="{CIANO}">BUSCADORFAST · PARA WINDOWS</text>')
+    c.append(f'<text x="{W/2}" y="92" text-anchor="middle" font-size="18" font-weight="700" letter-spacing="2.4" fill="{CIANO}">FAROFINDER · PARA WINDOWS</text>')
     c.append(f'<text x="{W/2}" y="158" text-anchor="middle" font-size="58" font-weight="700" letter-spacing="-1.8" fill="{TEXTO}">Toda foto que você já tirou,</text>')
-    c.append('<defs><linearGradient id="tit" x1="0" x2="1"><stop offset="0" stop-color="#64d2ff"/><stop offset=".5" stop-color="#0a84ff"/><stop offset="1" stop-color="#a78bfa"/></linearGradient></defs>')
+    c.append('<defs><linearGradient id="tit" x1="0" x2="1"><stop offset="0" stop-color="#8db8ff"/><stop offset=".5" stop-color="#2d7efc"/><stop offset="1" stop-color="#5b9bff"/></linearGradient></defs>')
     c.append(f'<text x="{W/2}" y="222" text-anchor="middle" font-size="58" font-weight="700" letter-spacing="-1.8" fill="url(#tit)">a uma frase de distância.</text>')
     # janela do app
     wx, wy, ww, wh = 110, 270, 980, 390
     c.append(f'<rect x="{wx}" y="{wy+10}" width="{ww}" height="{wh}" rx="22" fill="#000" opacity=".35"/>')
-    c.append(f'<rect x="{wx}" y="{wy}" width="{ww}" height="{wh}" rx="22" fill="#111117" stroke="#ffffff" stroke-opacity=".12"/>')
+    c.append(f'<rect x="{wx}" y="{wy}" width="{ww}" height="{wh}" rx="22" fill="#1f2124" stroke="#ffffff" stroke-opacity=".12"/>')
     for k, cor in enumerate(["#ff5f57", "#febc2e", "#28c840"]):
         c.append(f'<circle cx="{wx+26+k*20}" cy="{wy+24}" r="6" fill="{cor}"/>')
     sx, sy, sw = wx + 210, wy + 46, 560
@@ -434,7 +434,7 @@ def passos():
 # ================================================================== botão de baixar
 def botao():
     W, H = 420, 84
-    c = ['<defs><linearGradient id="bt" x1="0" x2="1"><stop offset="0" stop-color="#2997ff"/><stop offset="1" stop-color="#0a6cff"/></linearGradient></defs>',
+    c = ['<defs><linearGradient id="bt" x1="0" x2="1"><stop offset="0" stop-color="#2d7efc"/><stop offset="1" stop-color="#1a62d6"/></linearGradient></defs>',
          f'<rect width="{W}" height="{H}" rx="{H/2}" fill="url(#bt)"/>',
          f'<rect x="1" y="1" width="{W-2}" height="{H-2}" rx="{H/2-1}" fill="none" stroke="#fff" stroke-opacity=".25"/>',
          '<g transform="translate(46 42)" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">'

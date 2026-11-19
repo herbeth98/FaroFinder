@@ -17,3 +17,6 @@ BuscadorFAST.exe
 # Instalador montado (vai para a página de versões, não para o código)
 dist/
 instalador/build/
+
+# animação da logo: quadros e vídeos gerados por logo/animacao/gerar.py
+logo/animacao/saida/

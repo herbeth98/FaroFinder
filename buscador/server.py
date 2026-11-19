@@ -16,11 +16,11 @@ from .media import VIDEO_FRAMES, thumb_path
 from .search import cameras, search, top_tags
 from .volumes import connected, list_volumes
 
-app = FastAPI(title="BuscadorFAST")
+app = FastAPI(title="FaroFinder")
 
 _LOCKED_PAGE = """<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BuscadorFAST</title><body style="font:16px system-ui;padding:32px;text-align:center;color:#333">
-<h2>BuscadorFAST</h2><p>Para abrir pelo celular, no computador vá em <b>⚙ → Acesso pelo celular</b>
+<title>FaroFinder</title><body style="font:16px system-ui;padding:32px;text-align:center;color:#333">
+<h2>FaroFinder</h2><p>Para abrir pelo celular, no computador vá em <b>⚙ → Acesso pelo celular</b>
 e leia o QR code com a câmera.</p></body>"""
 
 
@@ -402,9 +402,31 @@ def api_media(fid: int, baixar: bool = False, jpg: bool = False, leve: bool = Fa
             raise HTTPException(415, "RAW sem prévia JPEG")
         headers = {"Content-Disposition": _attachment(path.stem + ".jpg")} if baixar else None
         return Response(th.data, media_type="image/jpeg", headers=headers)
+    if not baixar and path.suffix.lower() in VIEW_AS_JPEG:
+        return Response(_view_jpeg(path), media_type="image/jpeg", headers={"Cache-Control": "max-age=86400"})
     if baixar:
         return FileResponse(path, headers={"Content-Disposition": _attachment(path.name)})
     return FileResponse(path)
+
+
+# o navegador não abre HEIC nem TIFF: para ver na tela, o PC entrega um JPEG grande (o original não muda)
+VIEW_AS_JPEG = {".heic", ".heif", ".tif", ".tiff"}
+VIEW_MAX_SIDE = 2560
+
+
+def _view_jpeg(path: Path) -> bytes:
+    from io import BytesIO
+
+    from PIL import Image, ImageOps  # o suporte a HEIC já foi registrado em media.py
+
+    with Image.open(path) as im:
+        im = ImageOps.exif_transpose(im)
+        im.thumbnail((VIEW_MAX_SIDE, VIEW_MAX_SIDE), Image.LANCZOS)
+        if im.mode not in ("RGB", "L"):
+            im = im.convert("RGB")
+        buf = BytesIO()
+        im.save(buf, "JPEG", quality=88, optimize=True)
+    return buf.getvalue()
 
 
 def _light_video(path: Path, start: float):
@@ -487,7 +509,7 @@ def api_download_zip(ids: str, nome: str = ""):
         if sink.chunks:
             yield b"".join(sink.chunks)
 
-    zip_name = (nome.strip() or f"BuscadorFAST - {len(files)} arquivos") + ".zip"
+    zip_name = (nome.strip() or f"FaroFinder - {len(files)} arquivos") + ".zip"
     return StreamingResponse(stream(), media_type="application/zip",
                              headers={"Content-Disposition": _attachment(zip_name)})
 
@@ -795,7 +817,7 @@ def api_premiere_import(body: PremiereReq):
             subclips += _speech_subclips(conn, fid, str(p), row, _fts_query(body.q))
     if not paths:
         raise HTTPException(409, "Os arquivos estão em discos desconectados.")
-    bin_name = body.bin.strip() or ("BuscadorFAST - " + body.q.strip()[:40] if body.q.strip() else "BuscadorFAST")
+    bin_name = body.bin.strip() or ("FaroFinder - " + body.q.strip()[:40] if body.q.strip() else "FaroFinder")
     try:
         r = premiere.import_files(paths, bin_name, subclips)
     except (ConnectionError, TimeoutError, RuntimeError) as exc:

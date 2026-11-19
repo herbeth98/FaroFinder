@@ -1,4 +1,4 @@
-# BuscadorFAST: parte técnica
+# FaroFinder: parte técnica
 
 Voltar para a [página inicial](../README.md). O manual completo de uso está no [LEIAME.md](../LEIAME.md).
 
@@ -43,10 +43,10 @@ instalador\montar.bat 1.0.1
 
 ## Instalação em detalhes
 
-1. Baixe o **BuscadorFAST-Instalador-x.y.z.exe** na página de versões (**Releases**, à direita).
+1. Baixe o **FaroFinder-Instalador-x.y.z.exe** na página de versões (**Releases**, à direita).
 2. Abra o arquivo. Como o instalador não tem assinatura digital paga, o Windows pode avisar *"O Windows protegeu o computador"*: clique em **Mais informações → Executar assim mesmo**.
 3. Siga o assistente (**Avançar → Instalar**). No fim, uma janela preta prepara o Python e a inteligência artificial. São alguns gigabytes: leva de 10 a 40 minutos, conforme a internet.
-4. Abra o **BuscadorFAST** pelo atalho e vá em **Ferramentas → Indexar discos**.
+4. Abra o **FaroFinder** pelo atalho e vá em **Ferramentas → Indexar discos**.
 
 Para atualizar, rode o instalador da versão nova por cima: o catálogo é mantido. Para remover, use **Configurações → Aplicativos** do Windows (ele pergunta se apaga o catálogo; suas fotos e vídeos nunca são apagados).
 

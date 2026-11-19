@@ -5,6 +5,8 @@ const api = async (url, opts = {}) => {
   return r.json();
 };
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+// ícone de linha no meio do texto (os desenhos ficam no style.css, em --i-*)
+const ic = (name) => `<i class="ic i-${name}" aria-hidden="true"></i>`;
 
 const PAGE = 200;
 const savedSort = (() => { try { return localStorage.getItem("sort") || "relevancia"; } catch { return "relevancia"; } })();
@@ -73,13 +75,13 @@ function fmtTime(s) {
 }
 
 function tileHtml(it) {
-  const badge = (it.kind === "video" ? `<span class="badge">▶ ${fmtDur(it.duration)}</span>` : "")
+  const badge = (it.kind === "video" ? `<span class="badge">${ic("play")}${fmtDur(it.duration)}</span>` : "")
     + (state.review && it.review && it.review !== "kept" ? `<span class="badge rev">${REVIEW_REASON[it.review] || it.review}</span>` : "")
     + (it.sound_start != null && it.match_start == null ? `<span class="badge said" title="Som mais forte">${esc(it.sound_label)} ${fmtTime(it.sound_start)}${it.sound_count > 1 ? ` · ${it.sound_count}×` : ""}</span>` : "")
-    + (it.match_start != null ? `<span class="badge said" title="${esc(it.match_text)}">🗣 ${fmtTime(it.match_start)}${it.matches > 1 ? ` · ${it.matches}×` : ""}</span>` : "");
+    + (it.match_start != null ? `<span class="badge said" title="${esc(it.match_text)}">${ic("speech")}${fmtTime(it.match_start)}${it.matches > 1 ? ` · ${it.matches}×` : ""}</span>` : "");
   return `<div class="tile${selected.has(it.id) ? " sel" : ""}" data-id="${it.id}" title="${esc(it.name)}" tabindex="0" role="button" aria-label="${esc(it.name)}">
     ${it.has_thumb ? `<img loading="lazy" src="/api/thumb/${it.id}" alt="">`
-      : `<div class="nothumb"><span>${it.kind === "video" ? "🎬" : "🖼️"}</span>${esc(it.name)}<small>aguardando indexação</small></div>`}${badge}
+      : `<div class="nothumb">${ic(it.kind === "video" ? "film" : "photo")}${esc(it.name)}<small>aguardando indexação</small></div>`}${badge}
     <button class="explore" data-explore="${it.id}" title="Mostrar no Explorer">📂</button>
     <button class="star${it.favorite ? " on" : ""}" data-star="${it.id}" title="${it.favorite ? "Tirar dos favoritos" : "Favoritar"}">${it.favorite ? "★" : "☆"}</button>
     <button class="pick" data-pick="${it.id}" title="Selecionar (Shift = vários em sequência)" aria-label="Selecionar">✓</button>
@@ -345,13 +347,20 @@ async function openViewer(id) {
     const start = hit != null ? Math.max(0, hit - 1) : 0;
     const t = start ? `#t=${start.toFixed(1)}` : "";
     media.innerHTML = `<video src="/api/media/${f.id}${t}" controls autoplay playsinline poster="/api/thumb/${f.id}"></video>`
-      + (document.body.classList.contains("remote") ? `<button class="ghost light-btn" id="vlight">▶ Versão leve (se o vídeo não tocar)</button>` : "");
+      + (document.body.classList.contains("remote") ? `<button class="ghost light-btn" id="vlight">${ic("play")}Versão leve (se o vídeo não tocar)</button>` : "");
     const v = media.querySelector("video");
     // o navegador não toca esse formato (ex.: HEVC 10 bits no celular): o PC converte na hora
     v.addEventListener("error", () => playLight(start), { once: true });
     $("#vlight")?.addEventListener("click", () => playLight(v.currentTime || start));
   } else if ([".heic", ".heif", ".tif", ".tiff"].includes(f.ext)) {
-    media.innerHTML = `<img src="/api/thumb/${f.id}">`;  // navegador não abre esses formatos
+    // o navegador não abre esses formatos: mostra a miniatura na hora e troca pelo JPEG grande que o PC converte
+    media.innerHTML = `<img src="/api/thumb/${f.id}" class="vpreview">`;
+    const big = new Image(), shownId = f.id;
+    big.onload = () => {
+      const img = media.querySelector("img.vpreview");
+      if (current?.id === shownId && img) { img.src = big.src; img.classList.remove("vpreview"); }
+    };
+    big.src = `/api/media/${f.id}`;
   } else {
     media.innerHTML = `<img src="/api/media/${f.id}">`;
   }
@@ -361,7 +370,7 @@ async function openViewer(id) {
     ["Tamanho", f.width ? `${f.width} × ${f.height}` : ""],
     ["Duração", fmtDur(f.duration)],
     ["Câmera", f.camera],
-    ["Arquivo", f.size ? (f.size / 1048576).toFixed(1) + " MB" : ""],
+    ["Arquivo", f.size ? fmtBytes(f.size) : ""],  // o mesmo número do botão "Baixar"
     ["GPS", f.gps_lat ? `<a href="https://www.google.com/maps?q=${f.gps_lat},${f.gps_lon}" target="_blank" rel="noopener">ver no mapa</a>` : ""],
   ].filter(([, v]) => v);
   $("#vmeta").innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${k === "GPS" ? v : esc(v)}</dd>`).join("");
@@ -548,8 +557,8 @@ async function loadUpdateRoots() {
     const w = await api("/api/vigia");
     const last = w.last ? ` · última mudança às ${w.last.t}: ${[w.last.apagados && `${w.last.apagados} apagado(s)`, w.last.movidos && `${w.last.movidos} movido(s)/renomeado(s)`].filter(Boolean).join(", ")}` : "";
     $("#watchInfo").innerHTML = w.roots.length
-      ? `👁 <b>Vigiando em tempo real</b> os discos marcados: arquivos apagados saem da busca na hora, renomeados e movidos são acompanhados, e novos entram sozinhos${w.waiting ? ` (${w.waiting} terminando de copiar)` : ""}${last}.`
-      : "👁 Vigilância em tempo real iniciando…";
+      ? `${ic("eye")} <b>Vigiando em tempo real</b> os discos marcados: arquivos apagados saem da busca na hora, renomeados e movidos são acompanhados, e novos entram sozinhos${w.waiting ? ` (${w.waiting} terminando de copiar)` : ""}${last}.`
+      : `${ic("eye")} Vigilância em tempo real iniciando…`;
   } catch { $("#watchInfo").textContent = ""; }
 }
 $("#updRoots").addEventListener("change", async (e) => {
@@ -590,7 +599,7 @@ $("#pathForm").addEventListener("submit", (e) => { e.preventDefault(); if ($("#p
 async function loadPending() {
   const p = await api("/api/pendentes");
   const row = (label, n, note = "") =>
-    `<div class="pend-row${n ? "" : " ok"}"><span>${label}</span><b>${n ? nfmt(n) : "✓ em dia"}</b>${note ? `<small class="muted">${note}</small>` : ""}</div>`;
+    `<div class="pend-row${n ? "" : " ok"}"><span>${label}</span><b>${n ? nfmt(n) : `${ic("check")} em dia`}</b>${note ? `<small class="muted">${note}</small>` : ""}</div>`;
   $("#pendList").innerHTML =
     row("Palavras-chave e estrelas do Lightroom", p.lightroom) +
     row("Palavras-chave da IA", p.ia) +
@@ -660,8 +669,8 @@ async function pollJobs() {
     const queued = s.queued.length ? ` · ${s.queued.length} na fila` : "";
     const stopBtn = c.stopping
       ? `<button class="ghost danger" disabled>Parando…</button>`
-      : `<button class="ghost danger pc-only" data-stop title="Interrompe a tarefa. Rodando de novo, continua de onde parou.">■ Parar</button>`;
-    bar.innerHTML = `<b>${what}</b><span>${esc(p.phase || "")} ${detail}${rate}${queued}</span><div class="prog"><i style="width:${pct}%"></i></div>${c.lanes ? `<span class="jtoggle" title="Mostrar/esconder detalhes">▾</span>` : ""}${stopBtn}${lanesHtml(c.lanes)}`;
+      : `<button class="ghost danger pc-only" data-stop title="Interrompe a tarefa. Rodando de novo, continua de onde parou.">${ic("stop")}Parar</button>`;
+    bar.innerHTML = `<b>${what}</b><span>${esc(p.phase || "")} ${detail}${rate}${queued}</span><div class="prog"><i style="width:${pct}%"></i></div>${c.lanes ? `<span class="jtoggle" title="Mostrar/esconder detalhes">${ic("down")}</span>` : ""}${stopBtn}${lanesHtml(c.lanes)}`;
     bar.classList.remove("hidden");
     $("#jobDetail").innerHTML = bar.innerHTML;
     wasRunning = true;
@@ -691,13 +700,15 @@ async function openPeople() {
   const data = await api("/api/people");
   $("#peopleList").innerHTML = data.people.map((p) => `<option value="${esc(p.name)}">`).join("");
   $("#peopleNamed").innerHTML = data.people.map((p) => `
-    <div class="pcard${combine.has(p.id) ? " picked" : ""}" data-person="${p.id}" data-name="${esc(p.name)}">
-      <button class="ppick" data-ppick="${p.id}" title="Marcar para combinar" aria-label="Marcar ${esc(p.name)} para combinar" aria-pressed="${combine.has(p.id)}">✓</button>
-      <img src="/api/face/${p.cover}" alt=""><b>${esc(p.name)}</b><small>${p.files} arquivo${p.files > 1 ? "s" : ""}</small>
+    <div class="pcard${combine.has(p.id) ? " picked" : ""}" data-person="${p.id}" data-name="${esc(p.name)}"
+         role="button" tabindex="0" aria-pressed="${combine.has(p.id)}" title="Clique para marcar ${esc(p.name)}">
+      <button class="pmore" data-pmore title="Ajustar ${esc(p.name)}: nome, fotos e rostos" aria-label="Ajustar ${esc(p.name)}"></button>
+      <span class="pcheck" aria-hidden="true"></span>
+      <img src="/api/face/${p.cover}" alt=""><b>${esc(p.name)}</b><small>${nfmt(p.files)} arquivo${p.files > 1 ? "s" : ""}</small>
     </div>`).join("") || `<div class="muted">Ninguém com nome ainda.</div>`;
   $("#peopleGroups").innerHTML = data.groups.map((g) => `
     <div class="pcard" data-cluster="${g.cluster_id}">
-      <img src="/api/face/${g.cover}" alt=""><small>${g.files} arquivos</small>
+      <img src="/api/face/${g.cover}" alt=""><small>${nfmt(g.files)} arquivo${g.files > 1 ? "s" : ""}</small>
       <input placeholder="Quem é?" list="peopleList">
     </div>`).join("") || `<div class="muted">Nenhum grupo de rostos. Indexe pastas com fotos de pessoas.</div>`;
 }
@@ -709,13 +720,16 @@ $("#btnFaces").addEventListener("click", () => api("/api/rostos", { method: "POS
 
 function pcardClick(e) {
   if (e.target.tagName === "INPUT") return;
-  const pick = e.target.closest("[data-ppick]");
-  if (pick) { togglePick(Number(pick.dataset.ppick), pick.closest(".pcard").dataset.name); return; }
   const c = e.target.closest(".pcard");
   if (!c) return;
+  // pessoa com nome: o clique marca/desmarca; os ajustes (nome, rostos) ficam no botão ⋯ do canto
+  if (c.dataset.person && !e.target.closest("[data-pmore]")) { togglePick(Number(c.dataset.person), c.dataset.name); return; }
   openPersonDetail(c.dataset.person ? { person_id: Number(c.dataset.person), name: c.dataset.name } : { cluster_id: Number(c.dataset.cluster) });
 }
 $("#peopleNamed").addEventListener("click", pcardClick);
+$("#peopleNamed").addEventListener("keydown", (e) => {
+  if ((e.key === "Enter" || e.key === " ") && e.target.classList.contains("pcard")) { e.preventDefault(); e.target.click(); }
+});
 $("#peopleGroups").addEventListener("click", pcardClick);
 $("#peopleGroups").addEventListener("keydown", async (e) => {
   if (e.key !== "Enter" || !e.target.value.trim()) return;
@@ -811,7 +825,7 @@ $("#bulkKeep").addEventListener("click", async () => {
 });
 $("#bulkReviewTrash").addEventListener("click", async () => {
   const ids = [...selected];
-  if (!confirm(`Mandar ${ids.length} foto${ids.length === 1 ? "" : "s"} para a lixeira do BuscadorFAST?\n\nElas saem das pastas, mas dá para restaurar em Duplicados → Lixeira. O espaço só é liberado ao esvaziar a lixeira.`)) return;
+  if (!confirm(`Mandar ${ids.length} foto${ids.length === 1 ? "" : "s"} para a lixeira do FaroFinder?\n\nElas saem das pastas, mas dá para restaurar em Duplicados → Lixeira. O espaço só é liberado ao esvaziar a lixeira.`)) return;
   const r = await api("/api/revisar/lixeira", { body: { ids } });
   toast(`🗑 ${r.moved} na lixeira (${fmtBytes(r.bytes)})${r.failed ? ` · ${r.failed} não puderam ser movidas (disco desconectado?)` : ""}`);
   selected.clear(); syncSelection(); refreshReview(); refreshSide(); load();
@@ -833,7 +847,7 @@ $("#albumsEntry").addEventListener("click", async () => {
     const counts = [a.photos && `${a.photos} foto${a.photos > 1 ? "s" : ""}`, a.videos && `${a.videos} vídeo${a.videos > 1 ? "s" : ""}`].filter(Boolean).join(", ");
     return `${head}<div class="acard" data-i="${i}">
       <img loading="lazy" src="/api/thumb/${a.cover}" alt="">
-      <div class="t"><b>${a.gps ? "📍" : "📁"} ${esc(a.title)}</b>
+      <div class="t"><b>${ic(a.gps ? "pin" : "folder")}${esc(a.title)}</b>
       <small>${d.toLocaleDateString("pt-BR", { weekday: "short", day: "numeric", month: "short" })} · ${a.start}–${a.end}</small>
       <small>${counts}</small></div></div>`;
   }).join("") || `<div class="muted">Nenhum álbum ainda (é preciso pelo menos 4 fotos ou vídeos do mesmo dia e lugar).</div>`;
@@ -877,7 +891,7 @@ function healthCard(d) {
 
 async function loadHealth(force = false) {
   const r = await api(`/api/saude${force ? "?atualizar=true" : ""}`);
-  $("#healthBadge").textContent = r.worst === "ok" ? "" : r.worst === "atencao" ? "⚠" : "❌";
+  $("#healthBadge").innerHTML = r.worst === "ok" ? "" : `<span class="${r.worst === "atencao" ? "atencao" : "problema"}">${ic("alert")}</span>`;
   if (!$("#healthDlg").classList.contains("hidden")) {
     $("#healthList").innerHTML = r.disks.map(healthCard).join("");
     $("#healthWhen").textContent = `verificado às ${new Date(r.checked).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
@@ -971,8 +985,9 @@ async function loadMap(fit = false) {
     mapState.layer.addLayer(m);
   }
   mapState.map.addLayer(mapState.layer);
-  $("#mapInfo").textContent = pts.length
-    ? `${nfmt(pts.length)} com localização · 🔵 foto · 🟠 vídeo · aproxime e clique num ponto`
+  // a legenda usa as mesmas cores dos pontos do mapa (.map-dot)
+  $("#mapInfo").innerHTML = pts.length
+    ? `${nfmt(pts.length)} com localização · <span class="map-key" style="background:var(--action)"></span>foto · <span class="map-key" style="background:#ff9f0a"></span>vídeo · aproxime e clique num ponto`
     : "Nenhum arquivo com localização nos filtros atuais (só fotos e vídeos com GPS: celular, drone…).";
 }
 $("#map").addEventListener("click", (e) => { const id = e.target.dataset?.open; if (id) openViewer(Number(id)); });
@@ -989,7 +1004,7 @@ const voice = { rec: null, chunks: [], timer: null };
 $("#micBtn").addEventListener("click", async () => {
   if (voice.rec) return voice.rec.stop();  // segundo toque: termina e busca
   if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
-    return toast("Para falar, abra o BuscadorFAST pelo endereço seguro (no PC: ⚙ → Acesso pelo celular → QR code).");
+    return toast("Para falar, abra o FaroFinder pelo endereço seguro (no PC: ⚙ → Acesso pelo celular → QR code).");
   }
   let stream;
   try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
@@ -1305,9 +1320,9 @@ $("#collDelete").addEventListener("click", async () => {
 function renderMarks() {
   const fav = !!current.favorite;
   $("#vfav").classList.toggle("on", fav);
-  $("#vfav").textContent = fav ? "★ Favorito" : "☆ Favoritar";
+  $("#vfav").innerHTML = fav ? `${ic("star-fill")}Favorito` : `${ic("star")}Favoritar`;
   $("#vcolls").innerHTML = (current.collections || []).map((c) =>
-    `<span class="chip coll" title="Coleção">📁 ${esc(c.name)}<button data-uncoll="${c.id}" title="Tirar desta coleção">×</button></span>`).join("");
+    `<span class="chip coll" title="Coleção">${ic("folder")} ${esc(c.name)}<button data-uncoll="${c.id}" title="Tirar desta coleção">×</button></span>`).join("");
   $("#vcollAdd").value = "";
 }
 $("#vfav").addEventListener("click", () => setFavorite([current.id], !current.favorite));
@@ -1469,7 +1484,7 @@ function groupHtml(g) {
                  title="${c.online ? "Marcado = vai para a lixeira" : "Disco desconectado"}">
           <span class="tag">${rm ? "remover" : "manter"}</span>
           <span class="p">${esc(c.full_path)}${c.my_tags ? " · tem marcações suas (palavras-chave, ⭐ ou coleção)" : ""}</span>
-          ${c.online ? `<button data-explore-dup="${c.id}" title="Mostrar no Explorer">📂</button>` : `<span class="tag">desconectado</span>`}
+          ${c.online ? `<button data-explore-dup="${c.id}" title="Mostrar no Explorer" aria-label="Mostrar no Explorer">${ic("folder")}</button>` : `<span class="tag">desconectado</span>`}
         </div>`;
       }).join("")}
     </div></div>`;
@@ -1505,7 +1520,7 @@ function syncDupesBar() {
 
 $("#dupesTrash").addEventListener("click", async () => {
   const n = dup.remove.size;
-  if (!n || !confirm(`Mover ${n} cópias duplicadas para a lixeira do BuscadorFAST?\n\nElas saem das pastas, mas dá para restaurar. O espaço só é liberado ao esvaziar a lixeira.`)) return;
+  if (!n || !confirm(`Mover ${n} cópias duplicadas para a lixeira do FaroFinder?\n\nElas saem das pastas, mas dá para restaurar. O espaço só é liberado ao esvaziar a lixeira.`)) return;
   $("#dupesTrash").disabled = true;
   $("#dupesTrash").textContent = "Movendo…";
   const r = await api("/api/duplicados/lixeira", { body: { ids: [...dup.remove.keys()] } });
@@ -1553,8 +1568,8 @@ async function loadBackup() {
   const st = $("#bkStatus");
   st.className = "bk-status " + (b.last_error ? "bad" : b.last && !stale ? "ok" : "");
   st.innerHTML = b.last_error
-    ? `⚠ Último backup falhou: ${esc(b.last_error)}`
-    : b.last ? `✓ Último backup ${ago(b.last)} em <b>${esc(b.path)}</b>` : "Nenhum backup feito ainda.";
+    ? `${ic("alert")} Último backup falhou: ${esc(b.last_error)}`
+    : b.last ? `${ic("check")} Último backup ${ago(b.last)} em <b>${esc(b.path)}</b>` : "Nenhum backup feito ainda.";
   $("#bkList").innerHTML = b.backups.map((x) =>
     `<div class="trow"><span class="n">${new Date(x.date).toLocaleString("pt-BR")}</span><span class="muted">${fmtBytes(x.size)}</span><code>${esc(x.name)}</code></div>`
   ).join("") || `<div class="muted">${b.online ? "Nenhum ainda." : "O disco de destino está desconectado."}</div>`;
@@ -1722,7 +1737,7 @@ $("#bulkDown").addEventListener("click", () => {
   const bytes = items.filter((it) => selected.has(it.id)).reduce((a, it) => a + (it.size || 0), 0);
   if (!confirm(`Baixar ${ids.length} arquivos num .zip (${fmtBytes(bytes)})?${bytes > 2e9 ? "\n\nÉ bastante coisa: no celular pode demorar e ocupar espaço." : ""}\n\nArquivos em discos desconectados ficam de fora.`)) return;
   const name = state.collection ? colls.find((c) => c.id === state.collection)?.name : state.q.trim();
-  downloadUrl(`/api/baixar?ids=${ids.join(",")}${name ? "&nome=" + encodeURIComponent("BuscadorFAST - " + name) : ""}`);
+  downloadUrl(`/api/baixar?ids=${ids.join(",")}${name ? "&nome=" + encodeURIComponent("FaroFinder - " + name) : ""}`);
   toast(`⬇ Preparando o .zip com ${ids.length} arquivos… o download começa em instantes.`);
 });
 
@@ -1750,17 +1765,17 @@ async function loadXfer() {
   const remote = document.body.classList.contains("remote");
   $("#recvList").innerHTML = r.received.map((f) => `
     <div class="xrow">
-      ${f.file_id ? `<img src="/api/thumb/${f.file_id}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'ph',textContent:'📄'}))">` : `<span class="ph">📄</span>`}
+      ${f.file_id ? `<img src="/api/thumb/${f.file_id}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'ph',innerHTML:'<i class=&quot;ic i-file&quot;></i>'}))">` : `<span class="ph">${ic("file")}</span>`}
       <span class="n">${esc(f.name)}<small>${fmtBytes(f.size)} · ${new Date(f.when).toLocaleString("pt-BR")}${f.file_id || !f.media ? "" : " · indexando…"}</small></span>
       ${f.file_id ? `<button class="ghost" data-view="${f.file_id}">Ver</button>` : ""}
-      ${f.file_id && !remote ? `<button class="ghost" data-explore-x="${f.file_id}" title="Mostrar no Explorer">📂</button>` : ""}
+      ${f.file_id && !remote ? `<button class="ghost" data-explore-x="${f.file_id}" title="Mostrar no Explorer" aria-label="Mostrar no Explorer">${ic("folder")}</button>` : ""}
     </div>`).join("") || `<div class="muted small">Nada recebido ainda.</div>`;
   $("#outList").innerHTML = r.outbox.map((o) => `
     <div class="xrow">
-      ${o.file_id && o.has_thumb ? `<img src="/api/thumb/${o.file_id}" alt="">` : `<span class="ph">📄</span>`}
+      ${o.file_id && o.has_thumb ? `<img src="/api/thumb/${o.file_id}" alt="">` : `<span class="ph">${ic("file")}</span>`}
       <span class="n">${esc(o.name)}<small>${fmtBytes(o.size || 0)} · ${new Date(o.added).toLocaleString("pt-BR")}</small></span>
-      <a class="btn" href="/api/transferir/caixa/${o.id}/baixar" download>⬇ Baixar</a>
-      <button class="ghost" data-unbox="${o.id}" title="Tirar da caixa do celular (o original continua no PC)">✕</button>
+      <a class="btn" href="/api/transferir/caixa/${o.id}/baixar" download>Baixar</a>
+      <button class="ghost xremove" data-unbox="${o.id}" title="Tirar da caixa do celular (o original continua no PC)" aria-label="Tirar da caixa do celular"></button>
     </div>`).join("") || `<div class="muted small">A caixa do celular está vazia.</div>`;
 }
 
@@ -1822,7 +1837,7 @@ $("#pickOut").addEventListener("click", async () => {
     const r = await api("/api/transferir/escolher", { method: "POST" });
     if (r.added) toast(`📱 ${r.added} arquivo${r.added === 1 ? "" : "s"} na caixa do celular`);
   } catch (err) { toast(err.message); }
-  b.disabled = false; b.textContent = "📂 Escolher arquivos no PC";
+  b.disabled = false; b.innerHTML = `${ic("folder")}Escolher arquivos no PC`;
   loadXfer();
 });
 
@@ -1857,7 +1872,7 @@ async function loadLan() {
 
 // ------------------------------------------------------------ fora de casa (Tailscale)
 function renderAway(t, extra = "") {
-  const check = `<button class="ghost" data-away="check">↻ Verificar de novo</button>`;
+  const check = `<button class="ghost" data-away="check">${ic("refresh")}Verificar de novo</button>`;
   let h;
   if (!t.installed) {
     h = `<ol class="steps">
@@ -1874,9 +1889,9 @@ function renderAway(t, extra = "") {
           <p>Com o Tailscale <b>ligado no celular</b>, leia este QR code — funciona em qualquer lugar.</p>
           <p class="muted small">Endereço: <code>${esc(t.url)}</code></p>
           ${t.https
-            ? `<p class="ok small">✓ Endereço seguro (HTTPS) ligado: a busca por voz 🎤 funciona e o celular não mostra aviso.</p>`
+            ? `<p class="ok small">${ic("check")} Endereço seguro (HTTPS) ligado: a busca por voz funciona e o celular não mostra aviso.</p>`
             : `<p class="small">Para a <b>busca por voz</b> funcionar fora de casa, ligue o endereço seguro do Tailscale (<code>${esc(t.name || "")}</code>):</p>
-               <button data-away="https">🔒 Ligar endereço seguro (HTTPS)</button>
+               <button data-away="https">${ic("lock")}Ligar endereço seguro (HTTPS)</button>
                <p class="muted small">Sem ele, o resto funciona normalmente (a conexão já é criptografada pelo Tailscale). Se não abrir, o Windows pode pedir permissão no <b>Firewall</b> para o “Python”.</p>`}
           ${extra}
         </div>
@@ -1931,10 +1946,10 @@ $("#schedSave").addEventListener("click", () => { $("#schedOn").checked = true; 
 
 $("#btnQuit").addEventListener("click", async () => {
   const running = !$("#jobBar").classList.contains("hidden");
-  if (!confirm(running ? "Fechar o BuscadorFAST? A tarefa em andamento será parada (o que já foi feito fica salvo)." : "Fechar o BuscadorFAST?")) return;
+  if (!confirm(running ? "Fechar o FaroFinder? A tarefa em andamento será parada (o que já foi feito fica salvo)." : "Fechar o FaroFinder?")) return;
   await api("/api/sair", { method: "POST" }).catch(() => {});
   clearTimeout(pollTimer);
-  document.body.innerHTML = `<div class="empty">BuscadorFAST fechado.<br><br>Para abrir de novo, use o atalho <b>BuscadorFAST</b> na área de trabalho.</div>`;
+  document.body.innerHTML = `<div class="empty">FaroFinder fechado.<br><br>Para abrir de novo, use o atalho <b>BuscadorFAST</b> na área de trabalho.</div>`;
 });
 
 // ------------------------------------------------------------ início
@@ -2103,7 +2118,7 @@ function togglePick(id, name) {
   combine.has(id) ? combine.delete(id) : combine.set(id, name);
   const card = document.querySelector(`#peopleNamed .pcard[data-person="${id}"]`);
   card?.classList.toggle("picked", combine.has(id));
-  card?.querySelector(".ppick")?.setAttribute("aria-pressed", combine.has(id));
+  card?.setAttribute("aria-pressed", combine.has(id));
   renderCombine();
 }
 let combineSeq = 0;

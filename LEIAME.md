@@ -1,4 +1,4 @@
-# BuscadorFAST
+# FaroFinder
 
 Catálogo de fotos e vídeos de todos os discos, com palavras-chave geradas por IA local (na GPU) e busca por frase livre em português.
 
@@ -6,7 +6,7 @@ Catálogo de fotos e vídeos de todos os discos, com palavras-chave geradas por 
 
 **Visual:** inspirado no design system da Apple: fotos em destaque, uma cor de ação só (azul), fonte **Inter** (Google Fonts) e modo claro ou escuro conforme o Windows ou o celular. Sem internet, a fonte volta para a do sistema. A cópia do visual anterior está em `.backup-visual-2026-11-13`.
 
-**Logo:** uma lupa branca sobre o azul do app, com uma paisagem (as fotos) e um brilho (a IA) dentro da lente. Os arquivos ficam na pasta `logo` (SVG, PNG 1024, logo com o nome em fundo transparente para fundo claro e escuro, `.ico` e uma folha de apresentação). O mesmo desenho vira o ícone do atalho, a aba do navegador e o ícone da tela de início do iPhone. Para mudar o desenho: edite `launcher\make_icon.py`, rode `.venv\Scripts\python.exe launcher\make_icon.py` e depois `launcher\compilar.bat` (grava o ícone no `BuscadorFAST.exe`).
+**Logo:** o visor FaroFinder: quatro cantos de enquadramento (a busca) com uma estrela azul de quatro pontas no centro (o que foi encontrado). Os vetores, extraídos do arquivo da identidade, ficam em `web/marca` (logo e símbolo para fundo claro e escuro, ícone do app e `partes.json` com cada peça separada). A animação da logo é gerada por `logo/animacao/gerar.py`.
 
 Abra pelo atalho **BuscadorFAST** na área de trabalho ou no Menu Iniciar (ou dois cliques em `BuscadorFAST.exe`). O programa roda sem janela e a tela abre no navegador (`http://127.0.0.1:8765`). Abrindo de novo com ele já aberto, só reabre a tela. Para fechar, use o botão **⏻** no canto superior direito.
 
@@ -125,10 +125,10 @@ Botão **🏷 Gravar no arquivo**: no visualizador, na barra de seleção ou no 
 
 Com o Premiere aberto num projeto (o painel **MCP Bridge** abre sozinho com ele):
 
-- No visualizador: **🎬 Enviar para o Premiere** importa o arquivo para a pasta (bin) **BuscadorFAST** do projeto.
+- No visualizador: **🎬 Enviar para o Premiere** importa o arquivo para a pasta (bin) **FaroFinder** do projeto.
 - Se você buscou uma frase e o vídeo tem a fala: **🎬 Só os trechos falados** importa o vídeo e cria um **subclipe** em cada trecho onde a frase é dita (com 1,5 s de folga antes e depois), pronto para arrastar para a timeline.
 - Vários de uma vez: selecione com Ctrl+clique e use **🎬 Premiere** na barra de baixo.
-- Quando há uma busca, a pasta no Premiere recebe o nome dela (ex.: "BuscadorFAST - portal da transparência").
+- Quando há uma busca, a pasta no Premiere recebe o nome dela (ex.: "FaroFinder - portal da transparência").
 - Arquivos que já estão naquela pasta do projeto não são importados de novo.
 
 ### Duplicados
@@ -137,7 +137,7 @@ Botão **Duplicados** no topo.
 
 1. **Procurar duplicados**: compara os arquivos de mesmo tamanho e confirma lendo o arquivo inteiro. Só arquivos idênticos byte a byte contam. Só discos conectados são conferidos.
 2. A lista mostra, do que mais ocupa para o que menos ocupa, cada arquivo com suas cópias. Uma fica marcada como **manter** (verde) e as outras como **remover**. Escolha o disco preferido em *Manter de preferência no disco* ou ajuste cada caixinha. Não dá para marcar todas as cópias de um arquivo.
-3. **Mover para a lixeira**: as cópias vão para a pasta `BuscadorFAST-Lixeira` no mesmo disco. Saem das pastas, mas dá para **Restaurar**. Suas palavras-chave passam para a cópia que fica.
+3. **Mover para a lixeira**: as cópias vão para a pasta `FaroFinder-Lixeira` no mesmo disco. Saem das pastas, mas dá para **Restaurar**. Suas palavras-chave passam para a cópia que fica.
 4. **Esvaziar e liberar**: apaga de vez a lixeira daquele disco e libera o espaço. Isso não tem volta.
 
 ### Vigilância em tempo real
@@ -164,7 +164,7 @@ Em **⚙ → Acesso pelo celular**, marque *Permitir acesso pelo celular* e leia
 2. Toque em *Verificar de novo*: aparece o QR code de fora de casa. Leia com o celular, com o Tailscale ligado nele.
 3. Toque em **🔒 Ligar endereço seguro (HTTPS)**. Na primeira vez, o Tailscale pode pedir que você libere o HTTPS na conta: abra o link, clique em *Enable* e toque no botão de novo. O endereço passa a ser `https://<nome-do-pc>.<sua-rede>.ts.net`, com certificado de verdade: a busca por voz 🎤 funciona e o celular não mostra aviso de segurança.
 
-Só os aparelhos da sua conta do Tailscale enxergam o BuscadorFAST. Nada fica aberto na internet e não é preciso mexer no roteador. A chave do QR e os bloqueios do celular (apagar, mover, configurações) valem igual fora de casa. O PC precisa estar ligado, com o BuscadorFAST aberto e com o acesso pelo celular ligado.
+Só os aparelhos da sua conta do Tailscale enxergam o FaroFinder. Nada fica aberto na internet e não é preciso mexer no roteador. A chave do QR e os bloqueios do celular (apagar, mover, configurações) valem igual fora de casa. O PC precisa estar ligado, com o FaroFinder aberto e com o acesso pelo celular ligado.
 
 No celular, a navegação fica embaixo, ao alcance do polegar: **Início**, **Filtros** (com o número de filtros ativos), **Pessoas**, **Álbuns** e **Mais** (favoritos, para revisar, transferir, linha do tempo, mapa). Os modos de busca viram botões logo abaixo do campo. O topo se esconde ao rolar para baixo e volta ao rolar para cima. As fotos aparecem 3 por linha, e no visualizador dá para deslizar o dedo para passar de arquivo.
 
@@ -172,7 +172,7 @@ No celular, a navegação fica embaixo, ao alcance do polegar: **Início**, **Fi
 
 **⇄ Transferir** (no topo, no PC e no celular):
 
-- **Do celular para o PC:** no celular, toque em *📷 Fotos e vídeos* ou *📄 Outros arquivos*. Eles chegam em `D:\BuscadorFAST-Recebidos\<data de hoje>` (dá para trocar a pasta no PC), mantêm a data original e as fotos e vídeos entram sozinhos no catálogo — só eles são processados, não a fila inteira.
+- **Do celular para o PC:** no celular, toque em *📷 Fotos e vídeos* ou *📄 Outros arquivos*. Eles chegam em `D:\FaroFinder-Recebidos\<data de hoje>` (dá para trocar a pasta no PC), mantêm a data original e as fotos e vídeos entram sozinhos no catálogo — só eles são processados, não a fila inteira.
 - **Do PC para o celular:** no PC, *📂 Escolher arquivos no PC* (janela normal do Windows) ou selecione resultados e use *📱 Para o celular*. **Nada é copiado**: a caixa do celular guarda só onde o arquivo está, e o celular baixa direto de lá. Tirar da caixa (✕) não apaga o arquivo. Arquivo que você apagar ou mover no PC sai da caixa sozinho.
 
 Pelo celular dá para buscar, ver fotos e vídeos, baixar, favoritar, montar coleções, dar nomes às pessoas e enviar para o Premiere do PC. Apagar ou mover arquivos, gravar XMP, indexar e mudar configurações ficam só no computador.
@@ -180,7 +180,7 @@ Pelo celular dá para buscar, ver fotos e vídeos, baixar, favoritar, montar col
 Se o celular não abrir, o Firewall do Windows está bloqueando a porta 8766. Clique em **Permitir** no aviso do Windows, ou rode no PowerShell **como administrador**:
 
 ```
-New-NetFirewallRule -DisplayName "BuscadorFAST (celular)" -Direction Inbound -Protocol TCP -LocalPort 8766 -Profile Private -Action Allow
+New-NetFirewallRule -DisplayName "FaroFinder (celular)" -Direction Inbound -Protocol TCP -LocalPort 8766 -Profile Private -Action Allow
 ```
 
 Vídeos 4K em HEVC 10 bits (iPhone, a6700 em XAVC HS) podem não tocar no navegador do celular; as fotos e a maioria dos vídeos H.264 tocam normalmente.
@@ -201,7 +201,7 @@ BuscadorFAST.bat discos                            lista os discos e o estado de
 
 ## Instalar em outro computador
 
-Mande para a pessoa o arquivo **BuscadorFAST-Instalador-x.y.z.exe** (fica na página de versões do repositório no GitHub ou na pasta `dist` depois de rodar `instalador\montar.bat`). Ela abre o arquivo, segue o assistente e, no fim, uma janela preta baixa o Python e a IA (alguns gigabytes). Com placa NVIDIA, a IA usa a placa; sem ela, usa o processador, bem mais devagar. Os detalhes estão no `README.md`.
+Mande para a pessoa o arquivo **FaroFinder-Instalador-x.y.z.exe** (fica na página de versões do repositório no GitHub ou na pasta `dist` depois de rodar `instalador\montar.bat`). Ela abre o arquivo, segue o assistente e, no fim, uma janela preta baixa o Python e a IA (alguns gigabytes). Com placa NVIDIA, a IA usa a placa; sem ela, usa o processador, bem mais devagar. Os detalhes estão no `README.md`.
 
 Para gerar uma versão nova do instalador depois de mudar o programa: `instalador\montar.bat 1.0.1` (precisa do Inno Setup 6).
 
@@ -215,12 +215,12 @@ Tudo em `data/`: `catalogo.db` (SQLite), `thumbs/` (miniaturas) e `faces/` (reco
 
 ### Backup
 
-Botão **⚙** no topo. Com o programa aberto, o backup acontece **sozinho uma vez por dia** na pasta `BuscadorFAST-Backup` de outro disco do PC (dá para trocar o disco). São guardadas as últimas 7 cópias do catálogo (cerca de 13 MB cada) mais um espelho das miniaturas e rostos. Fotos e vídeos não são copiados. Se o backup falhar ou ficar mais de 3 dias sem rodar, aparece um ponto vermelho no ⚙.
+Botão **⚙** no topo. Com o programa aberto, o backup acontece **sozinho uma vez por dia** na pasta `FaroFinder-Backup` de outro disco do PC (dá para trocar o disco). São guardadas as últimas 7 cópias do catálogo (cerca de 13 MB cada) mais um espelho das miniaturas e rostos. Fotos e vídeos não são copiados. Se o backup falhar ou ficar mais de 3 dias sem rodar, aparece um ponto vermelho no ⚙.
 
 Para voltar um backup, feche o programa (⏻) e rode:
 
 ```
-BuscadorFAST.bat restaurar-backup "X:\BuscadorFAST-Backup\catalogo-AAAA-MM-DD_HHMM.zip"
+BuscadorFAST.bat restaurar-backup "X:\FaroFinder-Backup\catalogo-AAAA-MM-DD_HHMM.zip"
 ```
 
 O catálogo atual é guardado antes em `data\catalogo-antes-de-restaurar-<data>.db`.

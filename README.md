@@ -1,14 +1,17 @@
 <p align="center">
-  <img src="logo/BuscadorFAST-icone.svg" alt="" width="96">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="web/marca/logo-escuro.svg">
+    <img src="web/marca/logo-claro.svg" alt="FaroFinder" width="360">
+  </picture>
 </p>
 
 <p align="center">
-  <img src="docs/vitrine/abertura.svg" alt="Toda foto que você já tirou, a uma frase de distância. Uma janela do BuscadorFAST mostra a busca &quot;criança na praia&quot; e as fotos encontradas." width="100%">
+  <img src="docs/vitrine/abertura.svg" alt="Toda foto que você já tirou, a uma frase de distância. Uma janela do FaroFinder mostra a busca &quot;criança na praia&quot; e as fotos encontradas." width="100%">
 </p>
 
 <p align="center">
   Escreva o que você lembra da foto, do jeito que falaria com alguém.<br>
-  O BuscadorFAST procura em todos os seus discos, pelo que aparece na imagem.
+  O FaroFinder procura em todos os seus discos, pelo que aparece na imagem.
 </p>
 
 <p align="center">
