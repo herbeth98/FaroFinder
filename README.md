@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/herbeth98/BuscadorFAST/releases/latest">
+  <a href="https://github.com/herbeth98/FaroFinder/releases/latest">
     <img src="docs/vitrine/baixar.svg" alt="Baixar para Windows" width="300">
   </a>
 </p>
@@ -88,7 +88,7 @@ Depende de quantos arquivos você tem e da placa de vídeo. Você já pode busca
 <br>
 
 <p align="center">
-  <a href="https://github.com/herbeth98/BuscadorFAST/releases/latest">
+  <a href="https://github.com/herbeth98/FaroFinder/releases/latest">
     <img src="docs/vitrine/baixar.svg" alt="Baixar para Windows" width="260">
   </a>
 </p>
@@ -97,6 +97,6 @@ Depende de quantos arquivos você tem e da placa de vídeo. Você já pode busca
   <sub>
     <a href="LEIAME.md">Manual completo</a> ·
     <a href="docs/TECNICO.md">Como funciona por dentro</a> ·
-    <a href="https://github.com/herbeth98/BuscadorFAST/releases">Todas as versões</a>
+    <a href="https://github.com/herbeth98/FaroFinder/releases">Todas as versões</a>
   </sub>
 </p>
