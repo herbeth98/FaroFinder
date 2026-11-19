@@ -1,4 +1,4 @@
-"""Caminhos e constantes do BuscadorFAST."""
+"""Caminhos e constantes do FaroFinder."""
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent

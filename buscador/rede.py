@@ -90,7 +90,7 @@ def _certificate() -> tuple[str, str]:
     if cert_path.exists() and key_path.exists() and stamp.exists() and stamp.read_text() == ip:
         return str(cert_path), str(key_path)
     key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-    name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "BuscadorFAST")])
+    name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "FaroFinder")])
     now = datetime.datetime.now(datetime.timezone.utc)
     cert = (x509.CertificateBuilder().subject_name(name).issuer_name(name).public_key(key.public_key())
             .serial_number(x509.random_serial_number()).not_valid_before(now - datetime.timedelta(days=1))
@@ -206,7 +206,7 @@ def _ts(*args: str, timeout: int = 15) -> tuple[int, str]:
 
 
 def _https_on(dns: str) -> bool:
-    """O endereço https://<pc>.ts.net já está ligado e apontando para a porta do BuscadorFAST?"""
+    """O endereço https://<pc>.ts.net já está ligado e apontando para a porta do FaroFinder?"""
     code, out = _ts("serve", "status", "--json")
     if code != 0:
         return False

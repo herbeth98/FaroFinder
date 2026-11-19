@@ -9,6 +9,7 @@ tools/
 models/
 __pycache__/
 *.pyc
+FaroFinder.exe
 BuscadorFAST.exe
 
 # Cópias de segurança locais

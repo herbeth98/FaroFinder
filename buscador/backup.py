@@ -186,13 +186,13 @@ def restore(zip_path: str) -> str:
 
     try:
         urllib.request.urlopen("http://127.0.0.1:8765/api/jobs", timeout=2)
-        raise RuntimeError("Feche o BuscadorFAST (botão ⏻) antes de restaurar um backup.")
+        raise RuntimeError("Feche o FaroFinder (botão ⏻) antes de restaurar um backup.")
     except OSError:
         pass  # fechado: pode seguir
     zp = Path(zip_path)
     with zipfile.ZipFile(zp) as z:
         if "catalogo.db" not in z.namelist():
-            raise ValueError("Esse arquivo não é um backup do BuscadorFAST.")
+            raise ValueError("Esse arquivo não é um backup do FaroFinder.")
         stamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
         safety = DATA_DIR / f"catalogo-antes-de-restaurar-{stamp}.db"
         if DB_PATH.exists():

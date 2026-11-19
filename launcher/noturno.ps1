@@ -1,5 +1,5 @@
 # Chamado pelo Agendador de Tarefas do Windows (criado em ⚙ → Atualização automática).
-#   noturno.ps1 iniciar  → abre o BuscadorFAST se estiver fechado e começa "Atualizar todos os discos"
+#   noturno.ps1 iniciar  → abre o FaroFinder se estiver fechado e começa "Atualizar todos os discos"
 #   noturno.ps1 parar    → para a tarefa em andamento (o que foi feito fica salvo; continua na próxima noite)
 param([string]$acao = "iniciar")
 $url = "http://127.0.0.1:8765"
@@ -15,7 +15,7 @@ if ($acao -eq "parar") {
 }
 
 if (-not (Vivo)) {
-    Start-Process (Join-Path $pasta "BuscadorFAST.exe")
+    Start-Process (Join-Path $pasta "FaroFinder.exe")
     for ($i = 0; $i -lt 60 -and -not (Vivo); $i++) { Start-Sleep -Seconds 2 }
 }
 if (Vivo) {

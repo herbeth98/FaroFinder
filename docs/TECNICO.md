@@ -36,7 +36,7 @@ instalador\montar.bat 1.0.1
 
 - `buscador/`: o servidor e a IA (Python)
 - `web/`: a tela (HTML, CSS e JavaScript, sem framework)
-- `launcher/`: o `BuscadorFAST.exe` (C#), o ícone e a atualização noturna
+- `launcher/`: o `FaroFinder.exe` (C#), o ícone e a atualização noturna
 - `instalador/`: o assistente (Inno Setup) e o script que prepara Python, bibliotecas e modelos
 - `logo/`: a logo e o gerador dos ícones (`launcher/make_icon.py`)
 

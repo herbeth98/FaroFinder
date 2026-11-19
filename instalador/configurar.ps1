@@ -1,11 +1,11 @@
 ﻿<#
-  Prepara o BuscadorFAST depois que os arquivos foram copiados. O instalador chama isto no fim.
+  Prepara o FaroFinder depois que os arquivos foram copiados. O instalador chama isto no fim.
   Também serve para quem baixou o código do GitHub. Na pasta do programa, rode:
       powershell -ExecutionPolicy Bypass -File instalador\configurar.ps1
 
   O que faz (rodar de novo só completa o que faltou):
     1. baixa o uv, que instala o Python e as bibliotecas, para a pasta tools
-    2. instala o Python 3.12 só para o BuscadorFAST (não mexe em outro Python do computador)
+    2. instala o Python 3.12 só para o FaroFinder (não mexe em outro Python do computador)
     3. escolhe a IA certa para a placa de vídeo (NVIDIA com CUDA, ou o processador)
     4. instala as bibliotecas nas versões testadas (requirements-lock.txt)
     5. baixa o modelo de rostos e, com -Modelos, todos os modelos de IA (cerca de 12 GB)
@@ -20,7 +20,7 @@ $ErrorActionPreference = "Continue"
 $ProgressPreference = "SilentlyContinue"      # sem a barra, o Invoke-WebRequest baixa muito mais rápido
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 try { [Console]::OutputEncoding = [Text.Encoding]::UTF8 } catch { }
-try { $Host.UI.RawUI.WindowTitle = "BuscadorFAST - preparando" } catch { }
+try { $Host.UI.RawUI.WindowTitle = "FaroFinder - preparando" } catch { }
 
 $UV_VERSAO = "0.13.5"
 $TORCH = @("torch==2.11.0", "torchvision==0.26.0")
@@ -42,7 +42,7 @@ function Rodar([string]$exe, [string[]]$argumentos, [string]$erro) {
 }
 
 Write-Host ""
-Write-Host "  BuscadorFAST" -ForegroundColor White
+Write-Host "  FaroFinder" -ForegroundColor White
 Write-Host "  Preparando o programa. São alguns gigabytes: pode levar de 10 a 40 minutos, conforme a internet."
 Write-Host "  Pode deixar esta janela aberta e usar o computador normalmente."
 
@@ -56,12 +56,12 @@ $env:UV_LINK_MODE = "copy"
 $cacheProprio = -not $env:UV_CACHE_DIR
 if ($cacheProprio) { $env:UV_CACHE_DIR = Join-Path $tools "cache" }
 
-# BuscadorFAST desta pasta aberto (atualização): fecha antes de trocar as bibliotecas
+# FaroFinder desta pasta aberto (atualização): fecha antes de trocar as bibliotecas
 $venv = Join-Path $Pasta ".venv"
 $rodando = @(Get-CimInstance Win32_Process -Filter "Name='pythonw.exe' OR Name='python.exe'" -ErrorAction SilentlyContinue |
     Where-Object { $_.ExecutablePath -and $_.ExecutablePath.StartsWith($venv, [StringComparison]::OrdinalIgnoreCase) })
 if ($rodando.Count) {
-    Titulo "Fechando o BuscadorFAST para atualizar"
+    Titulo "Fechando o FaroFinder para atualizar"
     try { Invoke-WebRequest -UseBasicParsing -Method Post "http://127.0.0.1:8765/api/sair" -TimeoutSec 5 | Out-Null } catch { }
     Start-Sleep -Seconds 4
     $rodando | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
@@ -83,7 +83,7 @@ if (-not (Test-Path $uv)) {
 Ok "uv pronto"
 
 # 2. Python 3.12 só para o programa
-Titulo "2/5  Instalando o Python 3.12 (só para o BuscadorFAST)"
+Titulo "2/5  Instalando o Python 3.12 (só para o FaroFinder)"
 $py = Join-Path $venv "Scripts\python.exe"
 if (-not (Test-Path $py)) {
     # O uv cria um atalho de pasta (junção) "cpython-3.12-windows-x86_64-none" apontando para a versão exata.
@@ -160,13 +160,13 @@ if ($Modelos) {
     else { Aviso "O modelo de rostos não baixou agora. Rode o instalador de novo mais tarde para completar." }
 }
 
-# lançador (quem baixou o código do GitHub não tem o BuscadorFAST.exe)
-$exe = Join-Path $Pasta "BuscadorFAST.exe"
+# lançador (quem baixou o código do GitHub não tem o FaroFinder.exe)
+$exe = Join-Path $Pasta "FaroFinder.exe"
 if (-not (Test-Path $exe)) {
     $csc = Join-Path $env:WINDIR "Microsoft.NET\Framework64\v4.0.30319\csc.exe"
     if (Test-Path $csc) {
         & $csc /nologo /codepage:65001 /target:winexe /optimize+ "/win32icon:$Pasta\launcher\icone.ico" `
-            /r:System.Windows.Forms.dll "/out:$exe" "$Pasta\launcher\BuscadorFAST.cs" | Out-Null
+            /r:System.Windows.Forms.dll "/out:$exe" "$Pasta\launcher\FaroFinder.cs" | Out-Null
     }
 }
 

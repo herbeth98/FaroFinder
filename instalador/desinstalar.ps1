@@ -1,5 +1,5 @@
 ﻿<#
-  Chamado pelo desinstalador: fecha o BuscadorFAST desta pasta e tira as tarefas da atualização noturna
+  Chamado pelo desinstalador: fecha o FaroFinder desta pasta e tira as tarefas da atualização noturna
   que apontam para ela. Os arquivos são apagados pelo próprio desinstalador.
 #>
 param([string]$Pasta = (Split-Path -Parent $PSScriptRoot))
@@ -14,7 +14,7 @@ if ($procs.Count) {
     $procs | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
 }
 
-foreach ($nome in @("BuscadorFAST\Atualizar", "BuscadorFAST\Parar")) {
+foreach ($nome in @("FaroFinder\Atualizar", "FaroFinder\Parar", "BuscadorFAST\Atualizar", "BuscadorFAST\Parar")) {
     $xml = schtasks /Query /TN $nome /XML 2>$null
     if ($LASTEXITCODE -eq 0 -and ($xml -join "`n").ToLower().Contains($Pasta.ToLower())) {
         schtasks /Delete /TN $nome /F | Out-Null

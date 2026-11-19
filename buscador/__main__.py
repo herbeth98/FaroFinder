@@ -141,14 +141,14 @@ def main() -> None:
         import uvicorn
         port = getattr(args, "porta", 8765)
         url = f"http://127.0.0.1:{port}"
-        if sys.stdout is None:  # aberto pelo BuscadorFAST.exe (pythonw, sem console): grava num log
+        if sys.stdout is None:  # aberto pelo FaroFinder.exe (pythonw, sem console): grava num log
             from .config import DATA_DIR
             DATA_DIR.mkdir(parents=True, exist_ok=True)
             log = open(DATA_DIR / "servidor.log", "a", encoding="utf-8", buffering=1)
             sys.stdout = sys.stderr = log
         if not getattr(args, "sem_navegador", False):
             threading.Thread(target=lambda: (time.sleep(1.5), webbrowser.open(url)), daemon=True).start()
-        print(f"BuscadorFAST em {url}  (feche esta janela para encerrar)")
+        print(f"FaroFinder em {url}  (feche esta janela para encerrar)")
         uvicorn.run("buscador.server:app", host="127.0.0.1", port=port, log_level="warning")
 
 

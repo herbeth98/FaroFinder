@@ -1,4 +1,4 @@
-// Abre o BuscadorFAST: liga o servidor local sem janela de console e abre a tela no navegador.
+// Abre o FaroFinder: liga o servidor local sem janela de console e abre a tela no navegador.
 // Se o programa já estiver aberto, só abre a tela de novo.
 // Compilar: launcher\compilar.bat
 using System;
@@ -8,8 +8,8 @@ using System.Net;
 using System.Threading;
 using System.Windows.Forms;
 
-[assembly: System.Reflection.AssemblyTitle("BuscadorFAST")]
-[assembly: System.Reflection.AssemblyProduct("BuscadorFAST")]
+[assembly: System.Reflection.AssemblyTitle("FaroFinder")]
+[assembly: System.Reflection.AssemblyProduct("FaroFinder")]
 [assembly: System.Reflection.AssemblyVersion("1.0.0.0")]
 
 static class Program
@@ -30,8 +30,8 @@ static class Program
         if (!File.Exists(pythonw))
         {
             MessageBox.Show("Não encontrei o ambiente do programa em:\n" + pythonw +
-                            "\n\nO BuscadorFAST.exe precisa ficar na pasta do BuscadorFAST.",
-                            "BuscadorFAST", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            "\n\nO FaroFinder.exe precisa ficar na pasta do FaroFinder.",
+                            "FaroFinder", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return;
         }
 
@@ -54,8 +54,8 @@ static class Program
             if (server.HasExited) break;
             Thread.Sleep(500);
         }
-        MessageBox.Show("O BuscadorFAST não conseguiu iniciar.\nVeja o arquivo data\\servidor.log para os detalhes.",
-                        "BuscadorFAST", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        MessageBox.Show("O FaroFinder não conseguiu iniciar.\nVeja o arquivo data\\servidor.log para os detalhes.",
+                        "FaroFinder", MessageBoxButtons.OK, MessageBoxIcon.Error);
     }
 
     static bool Alive()

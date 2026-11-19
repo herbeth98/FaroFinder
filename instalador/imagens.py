@@ -8,7 +8,7 @@ from pathlib import Path
 from PIL import Image
 
 RAIZ = Path(__file__).resolve().parent.parent
-ICONE = Image.open(RAIZ / "logo" / "BuscadorFAST-icone-1024.png").convert("RGBA")
+ICONE = Image.open(RAIZ / "logo" / "FaroFinder-icone-1024.png").convert("RGBA")
 FUNDO = (245, 245, 247)       # o "parchment" do app
 ESCALAS = {"100": 1.0, "125": 1.25, "150": 1.5, "200": 2.0, "250": 2.5}
 

@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS collection_items (
 );
 CREATE INDEX IF NOT EXISTS ix_collection_items_file ON collection_items(file_id);
 
--- Duplicados movidos para a lixeira do BuscadorFAST (pasta no mesmo disco; dá para restaurar)
+-- Duplicados movidos para a lixeira do FaroFinder (pasta no mesmo disco; dá para restaurar)
 CREATE TABLE IF NOT EXISTS trash (
     id            INTEGER PRIMARY KEY,
     file_id       INTEGER NOT NULL REFERENCES files(id) ON DELETE CASCADE,

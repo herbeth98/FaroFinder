@@ -1,7 +1,7 @@
 """Conexão com o Adobe Premiere Pro pelo painel "MCP Bridge (CEP)" que já está instalado.
 
 O painel lê arquivos command-<id>.json numa pasta temporária, roda o script (ExtendScript) dentro do
-Premiere e devolve response-<id>.json. O BuscadorFAST usa o mesmo caminho para importar arquivos.
+Premiere e devolve response-<id>.json. O FaroFinder usa o mesmo caminho para importar arquivos.
 """
 import json
 import os

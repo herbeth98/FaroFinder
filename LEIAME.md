@@ -8,11 +8,11 @@ Catálogo de fotos e vídeos de todos os discos, com palavras-chave geradas por 
 
 **Logo:** o visor FaroFinder: quatro cantos de enquadramento (a busca) com uma estrela azul de quatro pontas no centro (o que foi encontrado). Os vetores, extraídos do arquivo da identidade, ficam em `web/marca` (logo e símbolo para fundo claro e escuro, ícone do app e `partes.json` com cada peça separada). A animação da logo é gerada por `logo/animacao/gerar.py`.
 
-Abra pelo atalho **BuscadorFAST** na área de trabalho ou no Menu Iniciar (ou dois cliques em `BuscadorFAST.exe`). O programa roda sem janela e a tela abre no navegador (`http://127.0.0.1:8765`). Abrindo de novo com ele já aberto, só reabre a tela. Para fechar, use o botão **⏻** no canto superior direito.
+Abra pelo atalho **FaroFinder** na área de trabalho ou no Menu Iniciar (ou dois cliques em `FaroFinder.exe`). O programa roda sem janela e a tela abre no navegador (`http://127.0.0.1:8765`). Abrindo de novo com ele já aberto, só reabre a tela. Para fechar, use o botão **⏻** no canto superior direito.
 
 **No topo:** a busca (tecla **/** leva até ela), uma pílula só com o microfone, a câmera e, no fim, *onde procurar* (em tudo, palavras exatas, escrito na foto, falado, sons). **Pessoas**, **Transferir** e o menu **Ferramentas** (Indexar discos, Duplicados e lixeira, Saúde dos discos). Acima das fotos ficam o total de resultados, o **tipo** (Tudo, Fotos, Vídeos, Prints), Linha do tempo, Mapa, Selecionar e a ordem. Na lateral, que cabe inteira numa tela de 1440×900, ficam as marcações, as pessoas, os discos, as datas rápidas (30 dias, este mês, este ano, ano passado), a câmera e as palavras-chave, com um campo para filtrá-las. Com dois ou mais filtros, aparece *Limpar filtros*. A barra de tarefa fica numa linha só; clique nela para ver as três frentes. No visualizador, as setas ‹ › (ou ← →) passam para o arquivo vizinho.
 
-Se algo der errado ao abrir, veja `data\servidor.log`. O `BuscadorFAST.bat` continua funcionando e mostra uma janela com as mensagens.
+Se algo der errado ao abrir, veja `data\servidor.log`. O `FaroFinder.bat` continua funcionando e mostra uma janela com as mensagens.
 
 - **🔄 Atualizar todos os discos** (dentro de *Indexar discos*): percorre os discos marcados, um depois do outro, procurando arquivos novos, alterados e apagados, e depois faz tudo o que estiver pendente. No C: só a sua pasta de usuário é percorrida; os outros discos, inteiros. Desmarque um disco para tirá-lo da atualização (vale pelo disco, mesmo que a letra mude). Discos desconectados são pulados.
 - **Indexar discos** (botão no topo): escolha um disco inteiro ou cole o caminho de uma pasta. Só arquivos novos ou alterados são lidos; depois vêm, em sequência, palavras-chave, rostos, texto nas fotos e fala dos vídeos.
@@ -188,15 +188,15 @@ Vídeos 4K em HEVC 10 bits (iPhone, a6700 em XAVC HS) podem não tocar no navega
 ## Linha de comando
 
 ```
-BuscadorFAST.bat indexar "I:\Vídeos 2026" G:\      indexa pastas/discos e roda a IA
-BuscadorFAST.bat atualizar                         percorre todos os discos marcados e depois faz o que falta
-BuscadorFAST.bat pendentes                         faz tudo o que falta (palavras-chave, rostos, texto, fala)
-BuscadorFAST.bat ia --refazer                      refaz as palavras-chave da IA (mantém as suas)
-BuscadorFAST.bat rostos                            procura rostos nos arquivos pendentes
-BuscadorFAST.bat texto                             lê o texto escrito dentro das fotos (OCR)
-BuscadorFAST.bat transcrever                       transcreve a fala dos vídeos (precisa do disco conectado)
-BuscadorFAST.bat duplicados                        procura arquivos idênticos (não apaga nada)
-BuscadorFAST.bat discos                            lista os discos e o estado de cada um
+FaroFinder.bat indexar "I:\Vídeos 2026" G:\      indexa pastas/discos e roda a IA
+FaroFinder.bat atualizar                         percorre todos os discos marcados e depois faz o que falta
+FaroFinder.bat pendentes                         faz tudo o que falta (palavras-chave, rostos, texto, fala)
+FaroFinder.bat ia --refazer                      refaz as palavras-chave da IA (mantém as suas)
+FaroFinder.bat rostos                            procura rostos nos arquivos pendentes
+FaroFinder.bat texto                             lê o texto escrito dentro das fotos (OCR)
+FaroFinder.bat transcrever                       transcreve a fala dos vídeos (precisa do disco conectado)
+FaroFinder.bat duplicados                        procura arquivos idênticos (não apaga nada)
+FaroFinder.bat discos                            lista os discos e o estado de cada um
 ```
 
 ## Instalar em outro computador
@@ -207,7 +207,7 @@ Para gerar uma versão nova do instalador depois de mudar o programa: `instalado
 
 ## Personalizar palavras-chave da IA
 
-Edite `buscador/vocab.py` (uma linha por palavra: português + descrição em inglês) e rode `BuscadorFAST.bat ia --refazer`.
+Edite `buscador/vocab.py` (uma linha por palavra: português + descrição em inglês) e rode `FaroFinder.bat ia --refazer`.
 
 ## Onde ficam os dados
 
@@ -220,7 +220,7 @@ Botão **⚙** no topo. Com o programa aberto, o backup acontece **sozinho uma v
 Para voltar um backup, feche o programa (⏻) e rode:
 
 ```
-BuscadorFAST.bat restaurar-backup "X:\FaroFinder-Backup\catalogo-AAAA-MM-DD_HHMM.zip"
+FaroFinder.bat restaurar-backup "X:\FaroFinder-Backup\catalogo-AAAA-MM-DD_HHMM.zip"
 ```
 
 O catálogo atual é guardado antes em `data\catalogo-antes-de-restaurar-<data>.db`.

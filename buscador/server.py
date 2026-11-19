@@ -1061,7 +1061,7 @@ def api_backup_config(body: BackupCfg):
 
 @app.post("/api/sair")
 def api_sair():
-    """Fecha o programa (o servidor roda sem janela quando aberto pelo BuscadorFAST.exe)."""
+    """Fecha o programa (o servidor roda sem janela quando aberto pelo FaroFinder.exe)."""
     import threading
 
     jobs.cancel()

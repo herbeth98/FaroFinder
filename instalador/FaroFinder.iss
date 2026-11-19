@@ -1,11 +1,11 @@
-﻿; Instalador do BuscadorFAST (Inno Setup 6). Para montar, rode instalador\montar.bat
+﻿; Instalador do FaroFinder (Inno Setup 6). Para montar, rode instalador\montar.bat
 ; O instalador copia o programa e depois roda instalador\configurar.ps1, que baixa o Python,
 ; as bibliotecas de IA (com CUDA se houver placa NVIDIA) e os modelos.
 
 #ifndef AppVersion
   #define AppVersion "1.0.0"
 #endif
-#define AppName "BuscadorFAST"
+#define AppName "FaroFinder"
 #define Raiz ".."
 
 [Setup]
@@ -13,10 +13,10 @@ AppId={{8F3C2A71-5E4B-4C1D-9A2E-B7F04D6C1E93}
 AppName={#AppName}
 AppVersion={#AppVersion}
 AppVerName={#AppName} {#AppVersion}
-AppPublisher=BuscadorFAST
+AppPublisher=FaroFinder
 VersionInfoVersion={#AppVersion}
-VersionInfoDescription=Instalador do BuscadorFAST
-DefaultDirName={localappdata}\Programs\BuscadorFAST
+VersionInfoDescription=Instalador do FaroFinder
+DefaultDirName={localappdata}\Programs\FaroFinder
 DisableProgramGroupPage=yes
 DisableWelcomePage=no
 UsePreviousAppDir=yes
@@ -25,7 +25,7 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0
 OutputDir={#Raiz}\dist
-OutputBaseFilename=BuscadorFAST-Instalador-{#AppVersion}
+OutputBaseFilename=FaroFinder-Instalador-{#AppVersion}
 SetupIconFile={#Raiz}\launcher\icone.ico
 UninstallDisplayIcon={app}\launcher\icone.ico
 UninstallDisplayName={#AppName}
@@ -44,8 +44,8 @@ SetupLogging=yes
 Name: "pt"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
 
 [Messages]
-WelcomeLabel2=Isto vai instalar o [name/ver] neste computador.%n%nO BuscadorFAST encontra fotos e vídeos em todos os seus discos pelo conteúdo: o que aparece na imagem, as pessoas, o texto escrito, o que é falado e os sons. Tudo roda no próprio computador.%n%nNo fim, o instalador baixa o Python e a inteligência artificial (alguns gigabytes). Deixe o computador ligado e conectado à internet.
-FinishedLabel=O BuscadorFAST está instalado.%n%nPara começar, abra o programa, clique em Ferramentas → Indexar discos e escolha os discos com suas fotos e vídeos.
+WelcomeLabel2=Isto vai instalar o [name/ver] neste computador.%n%nO FaroFinder encontra fotos e vídeos em todos os seus discos pelo conteúdo: o que aparece na imagem, as pessoas, o texto escrito, o que é falado e os sons. Tudo roda no próprio computador.%n%nNo fim, o instalador baixa o Python e a inteligência artificial (alguns gigabytes). Deixe o computador ligado e conectado à internet.
+FinishedLabel=O FaroFinder está instalado.%n%nPara começar, abra o programa, clique em Ferramentas → Indexar discos e escolha os discos com suas fotos e vídeos.
 
 [Tasks]
 Name: "desktopicon"; Description: "Criar um atalho na área de trabalho"
@@ -60,23 +60,30 @@ Source: "{#Raiz}\logo\*"; DestDir: "{app}\logo"; Flags: ignoreversion
 Source: "{#Raiz}\requirements.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#Raiz}\requirements-lock.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#Raiz}\LEIAME.md"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#Raiz}\BuscadorFAST.bat"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#Raiz}\FaroFinder.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "configurar.ps1"; DestDir: "{app}\instalador"; Flags: ignoreversion
 Source: "desinstalar.ps1"; DestDir: "{app}\instalador"; Flags: ignoreversion
-Source: "build\BuscadorFAST.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "build\FaroFinder.exe"; DestDir: "{app}"; Flags: ignoreversion
 
 [Dirs]
 Name: "{app}\data"; Flags: uninsneveruninstall
 Name: "{app}\models\hf"
 
+[InstallDelete]
+; atalhos e lançador da época em que o app se chamava BuscadorFAST
+Type: files; Name: "{autoprograms}\BuscadorFAST.lnk"
+Type: files; Name: "{autodesktop}\BuscadorFAST.lnk"
+Type: files; Name: "{app}\BuscadorFAST.exe"
+Type: files; Name: "{app}\BuscadorFAST.bat"
+
 [Icons]
-Name: "{autoprograms}\BuscadorFAST"; Filename: "{app}\BuscadorFAST.exe"; WorkingDir: "{app}"; IconFilename: "{app}\launcher\icone.ico"; Tasks: startmenu
-Name: "{autodesktop}\BuscadorFAST"; Filename: "{app}\BuscadorFAST.exe"; WorkingDir: "{app}"; IconFilename: "{app}\launcher\icone.ico"; Tasks: desktopicon
+Name: "{autoprograms}\FaroFinder"; Filename: "{app}\FaroFinder.exe"; WorkingDir: "{app}"; IconFilename: "{app}\launcher\icone.ico"; Tasks: startmenu
+Name: "{autodesktop}\FaroFinder"; Filename: "{app}\FaroFinder.exe"; WorkingDir: "{app}"; IconFilename: "{app}\launcher\icone.ico"; Tasks: desktopicon
 
 [Run]
 Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\instalador\configurar.ps1"" -Pasta ""{app}"" -Modelos{code:SemPausa}"; StatusMsg: "Preparando o Python e a IA. O andamento aparece na janela preta; pode levar vários minutos..."; Tasks: modelos; Flags: waituntilterminated
 Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\instalador\configurar.ps1"" -Pasta ""{app}""{code:SemPausa}"; StatusMsg: "Preparando o Python e a IA. O andamento aparece na janela preta; pode levar vários minutos..."; Tasks: not modelos; Flags: waituntilterminated
-Filename: "{app}\BuscadorFAST.exe"; Description: "Abrir o BuscadorFAST agora"; Flags: postinstall nowait skipifsilent
+Filename: "{app}\FaroFinder.exe"; Description: "Abrir o FaroFinder agora"; Flags: postinstall nowait skipifsilent
 
 [UninstallRun]
 Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\instalador\desinstalar.ps1"" -Pasta ""{app}"""; Flags: runhidden waituntilterminated; RunOnceId: "FecharPrograma"
@@ -102,7 +109,7 @@ begin
   begin
     Dados := ExpandConstant('{app}\data');
     if DirExists(Dados) then
-      if SuppressibleMsgBox('Apagar também o catálogo do BuscadorFAST?' + #13#10#13#10 +
+      if SuppressibleMsgBox('Apagar também o catálogo do FaroFinder?' + #13#10#13#10 +
         'São as palavras-chave, os nomes das pessoas, as coleções e as miniaturas. Suas fotos e vídeos não são apagados.' + #13#10#13#10 +
         'Escolha "Não" para guardar o catálogo e usá-lo se instalar de novo.',
         mbConfirmation, MB_YESNO or MB_DEFBUTTON2, IDNO) = IDYES then

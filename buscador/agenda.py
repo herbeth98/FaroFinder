@@ -1,16 +1,18 @@
 """Atualização automática toda noite, pelo Agendador de Tarefas do Windows (tarefas do seu usuário).
 
-Duas tarefas na pasta "BuscadorFAST" do Agendador:
+Duas tarefas na pasta "FaroFinder" do Agendador:
   Atualizar → na hora de início, abre o programa se preciso e roda "Atualizar todos os discos"
   Parar     → na hora de fim, para o que estiver rodando (continua de onde parou na noite seguinte)
+As tarefas da época em que o app se chamava BuscadorFAST são apagadas ao ligar ou desligar.
 """
 import re
 import subprocess
 
 from .config import ROOT
 
-TASK_START = r"BuscadorFAST\Atualizar"
-TASK_STOP = r"BuscadorFAST\Parar"
+TASK_START = r"FaroFinder\Atualizar"
+TASK_STOP = r"FaroFinder\Parar"
+OLD_TASKS = (r"BuscadorFAST\Atualizar", r"BuscadorFAST\Parar")   # nome antigo do app
 SCRIPT = ROOT / "launcher" / "noturno.ps1"
 NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 
@@ -44,10 +46,12 @@ def enable(start: str, stop: str) -> dict:
         out = _run(["/Create", "/F", "/SC", "DAILY", "/TN", name, "/TR", _action(acao), "/ST", hora])
         if out.returncode != 0:
             raise RuntimeError(out.stderr.decode("cp850", "replace").strip() or "o Windows recusou o agendamento")
+    for name in OLD_TASKS:
+        _run(["/Delete", "/F", "/TN", name])
     return status()
 
 
 def disable() -> dict:
-    for name in (TASK_START, TASK_STOP):
+    for name in (TASK_START, TASK_STOP, *OLD_TASKS):
         _run(["/Delete", "/F", "/TN", name])
     return status()

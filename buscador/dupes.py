@@ -1,4 +1,4 @@
-"""Duplicados exatos (mesmo conteúdo byte a byte) e a lixeira do BuscadorFAST.
+"""Duplicados exatos (mesmo conteúdo byte a byte) e a lixeira do FaroFinder.
 
 Como acha: arquivos de mesmo tamanho → hash rápido (início, meio e fim) → hash do arquivo inteiro.
 Só o hash do arquivo inteiro conta como duplicado.
@@ -227,7 +227,7 @@ def move_to_trash(remove_ids: list[int]) -> dict:
 
 
 def trash_files(ids: list[int]) -> dict:
-    """Manda arquivos (não duplicados) para a lixeira do BuscadorFAST — usado em "Para revisar".
+    """Manda arquivos (não duplicados) para a lixeira do FaroFinder — usado em "Para revisar".
     Dá para restaurar; o espaço só é liberado ao esvaziar a lixeira daquele disco."""
     conn = connect()
     online = connected()

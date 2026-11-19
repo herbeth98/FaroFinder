@@ -1,4 +1,4 @@
-"""BuscadorFAST: encontra fotos e vídeos em todos os discos pelo conteúdo."""
+"""FaroFinder: encontra fotos e vídeos em todos os discos pelo conteúdo."""
 import os
 from pathlib import Path
 

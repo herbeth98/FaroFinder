@@ -1949,7 +1949,7 @@ $("#btnQuit").addEventListener("click", async () => {
   if (!confirm(running ? "Fechar o FaroFinder? A tarefa em andamento será parada (o que já foi feito fica salvo)." : "Fechar o FaroFinder?")) return;
   await api("/api/sair", { method: "POST" }).catch(() => {});
   clearTimeout(pollTimer);
-  document.body.innerHTML = `<div class="empty">FaroFinder fechado.<br><br>Para abrir de novo, use o atalho <b>BuscadorFAST</b> na área de trabalho.</div>`;
+  document.body.innerHTML = `<div class="empty">FaroFinder fechado.<br><br>Para abrir de novo, use o atalho <b>FaroFinder</b> na área de trabalho.</div>`;
 });
 
 // ------------------------------------------------------------ início
